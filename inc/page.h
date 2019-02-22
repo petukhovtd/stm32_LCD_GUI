@@ -1,94 +1,46 @@
 #ifndef __PAGE_H
 #define __PAGE_H
 
-#include "stdio.h"
-#include "stdarg.h"
+#include "parameter.h"
+#include "define_config.h"
+
+typedef enum
+{
+	MOVE_ERROR,
+	MOVE_VALUE_OK,
+	MOVE_NEXT_PAGE,
+	MOVE_PREVIOS_PAGE
+} LCD_MOVE_ANS;
+
+typedef enum
+{
+	MOVE_ACTION_SHOW,
+	MOVE_ACTION_NEXT,
+	MOVE_ACTION_PREVIOS,
+	MOVE_ACTION_ACTION_1
+} LCD_MOVE_ACTION;
 
 typedef struct
 {
-	uint8_t line_format[LCD_LINE][LCD_WIDTH];
-	Parameter* line_parameter[LCD_LINE][LCD_MAX_PARAM_LINE];
-	uint8_t line[LCD_LINE][LCD_WIDTH];
+	uint8_t current_parameter;
+	uint8_t page_parameter_max;
+	Parameter *mass_parameter[LCD_PAGE_PARAMETER_MAX];
+	uint8_t cusorYX[2][LCD_PAGE_PARAMETER_MAX];
+} LCD_Page_Parameters;
+
+typedef struct
+{
+	LCD_MOVE_ANS (*move)(LCD_Page_Parameters *p, LCD_MOVE_ACTION n);
+	void (*show)(void);
+} LCD_Page_Action;
+
+typedef struct
+{
+	LCD_Page_Parameters PageParameters;
+	LCD_Page_Action PageAction;
 } LCD_Page;
 
-uint8_t subsprintf(uint8_t *buffer, uint8_t *format, Parameter **mass);
-
-void LCD_Page_SetLine(LCD_Page *page, uint8_t numberline,
-					uint8_t *format, uint8_t numarg, ...)
-{
-	va_list arg;
-	uint8_t count = 0;
-
-	while(*format)
-	{
-		page->line_format[numberline][count] = *format++;
-		count++;
-	}
-	count = 0;
-	va_start(arg, numarg);
-	while(numarg--)
-	{
-		page->line_parameter[numberline][count] = va_arg(arg, Parameter *);
-		count++;
-	}
-	va_end(arg);
-}
-
-void LCD_Page_GenerateLine(LCD_Page *page)
-{
-	for(uint8_t i = 0; i < LCD_LINE; i++)
-	{
-		subsprintf(&page->line[i], &page->line_format[i], &page->line_parameter[i]);
-	}
-}
-
-uint8_t subsprintf(uint8_t *buffer, uint8_t *format, Parameter **mass)
-{
-	uint8_t shift_outs = 0;
-	uint8_t subs[16] = {0,};
-	uint8_t len = 0;
-	uint8_t c = 0;
-	while (*format)
-	{
-		c = *format++;
-		subs[len] = c;
-		len++;
-		if (c == '%')
-		{
-			while ((c != 'd')&(c != 'f')&(c != 's'))
-			{
-				c = *format++;
-				subs[len] = c;
-				len++;
-			}
-			switch (c)
-			{
-				case 'd':
-					shift_outs += sprintf(buffer+shift_outs, subs, (**mass).ivalue);
-					break;
-				case 'f':
-					shift_outs += sprintf(buffer+shift_outs, subs, (**mass).fvalue);
-					break;
-				case 's':
-					shift_outs += sprintf(buffer+shift_outs, subs, (**mass).svalue[(**mass).ivalue]);
-					break;
-				default:
-					break;
-			}
-			**mass++;
-			for (uint8_t i=0; i<len; i++)
-			{
-				subs[i] = 0;
-			}
-			len = 0;
-		}
-	}
-	for (uint8_t i = 0; i < len; i++)
-	{
-		buffer[shift_outs]=subs[i];
-		shift_outs++;
-	}
-	return shift_outs;
-}
+void LCD_Page_InitStuct(LCD_Page *p);
+LCD_MOVE_ANS LCD_Page_Move(LCD_Page_Parameters *p, LCD_MOVE_ACTION n);
 
 #endif

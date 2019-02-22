@@ -1,11 +1,9 @@
 #ifndef __DELAY_H
 #define __DELAY_H
 
-#include <stdint.h>
-
 uint32_t delay;
 
-void Delay_ms(uint32_t ms)
+void Delay_ms(uint16_t ms)
 {
 	delay = ms*1000;
 	while(delay);
