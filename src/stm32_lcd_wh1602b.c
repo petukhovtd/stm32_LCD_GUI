@@ -44,7 +44,7 @@ void LCD_Init_8bit (void)
   Delay_us(50);
 }
 
-void LCD_SendBite (char Out)
+void LCD_SendBite (uint8_t Out)
 {
   EN_H;
   if(Out&0x80)D7_H; else D7_L;
@@ -64,7 +64,7 @@ void LCD_SendBite (char Out)
   Delay_us(10);
 }
 
-void LCD_SendBite8 (char Out)
+void LCD_SendBite8 (uint8_t Out)
 {
   EN_H;
   if(Out&0x80)D7_H; else D7_L;
@@ -80,21 +80,21 @@ void LCD_SendBite8 (char Out)
   Delay_us(40);
 }
 
-void LCD_SendDate (char Date)
+void LCD_SendDate (uint8_t Date)
 {
   RS_H;
 //  LCD_SendBite(Date);
   LCD_SendBite8(Date);
 }
 
-void LCD_SendInstr (char Instr)
+void LCD_SendInstr (uint8_t Instr)
 {
   RS_L;
 //  LCD_SendBite(Instr);
   LCD_SendBite8(Instr);
 }
 
-void LCD_SendInstrShort (char Instr)
+void LCD_SendInstrShort (uint8_t Instr)
 {
   RS_L;
   EN_H;
@@ -113,7 +113,7 @@ void LCD_Clear (void)
   Delay_us(1600);
 }
 
-void LCD_CursorBlink (char State)
+void LCD_CursorBlink (uint8_t State)
 {
   if (State=='E')      LCD_SendInstr(0x0D);
       else LCD_SendInstr(0x0C);
@@ -121,13 +121,13 @@ void LCD_CursorBlink (char State)
   Delay_us(50);
 }
 
-void LCD_CursorPositionYX (char Y, char X)
+void LCD_CursorPositionYX (uint8_t Y, uint8_t X)
 {
   LCD_SendInstr(0x80+Y*0x40+X);
   Delay_us(50);
 }
 
-void LCD_print (char *str)
+void LCD_print (uint8_t *str)
 {
   char data;
   while (*str)
